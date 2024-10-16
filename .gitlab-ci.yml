@@ -1,0 +1,13 @@
+deploy:
+  stage: deploy
+  tags: [dev-hakim-vultr]
+  only:
+    - dev
+  script:
+    - cd /var/www/html/genius/exam/api
+    - git checkout .
+    - git pull origin dev
+    - /usr/bin/php8.2 /usr/local/bin/composer install
+    - /usr/bin/php8.2 artisan optimize:clear
+    - /usr/bin/php8.2 artisan migrate --seed
+    - /usr/bin/php8.2 artisan optimize

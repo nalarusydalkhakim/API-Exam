@@ -1,0 +1,57 @@
+FROM php:8.2-fpm
+
+# Install system dependencies
+RUN apt-get update \
+  && apt-get install -y \
+  git \
+  curl \
+  libpng-dev \
+  libonig-dev \
+  libxml2-dev \
+  zip \
+  unzip \
+  zlib1g-dev \
+  libpq-dev \
+  libzip-dev \
+  libmagickwand-dev
+
+# Install PHP extensions
+RUN docker-php-ext-configure pgsql --with-pgsql=/usr/local/pgsql \
+  && docker-php-ext-install pdo pdo_pgsql pgsql zip bcmath gd
+
+# Install additional PHP extensions
+RUN pecl install imagick \
+    && docker-php-ext-enable imagick
+    
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
+# Salin kode Laravel Anda ke dalam kontainer
+COPY . /var/www/html
+
+# Copy your custom PHP-FPM configuration file into the container
+COPY Docker/php/fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install dependencies using Composer
+RUN composer install --no-dev --prefer-dist --no-scripts --no-progress --no-suggest
+
+# Create a new user and group for PHP-FPM
+RUN groupadd -g 1000 nginx
+RUN useradd -u 1000 -g nginx -m nginx
+
+# Set ownership and permissions for Laravel
+RUN chown -R nginx:nginx /var/www/html
+RUN chmod -R 755 /var/www/html/storage
+RUN chmod -R 755 /var/www/html/bootstrap/cache
+
+# Expose port for PHP-FPM (Octane will use a different port)
+EXPOSE 9000
+
+# Use Octane to serve the Laravel application
+CMD ["php", "artisan", "octane:start", "--host=0.0.0.0", "--port=8000"]

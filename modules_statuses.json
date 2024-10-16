@@ -1,0 +1,7 @@
+{
+    "LearningManagement": true,
+    "Notification": true,
+    "Event": true,
+    "UserManagement": true,
+    "Dashboard": true
+}

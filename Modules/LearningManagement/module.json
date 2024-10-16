@@ -1,0 +1,12 @@
+{
+    "name": "LearningManagement",
+    "alias": "learningmanagement",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\LearningManagement\\Providers\\LearningManagementServiceProvider",
+        "Modules\\LearningManagement\\Providers\\EventServiceProvider"
+    ],
+    "files": []
+}
